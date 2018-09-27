@@ -42,7 +42,7 @@ function openTransactions() {
   // Switch to Transactions tab:
   closeAll();
   document.getElementById('transactions-tab').style.display = 'block';
-  fillIncomingTransactionTable("in-txs-table", "all");
+  fillIncomingTransactionTable("in-txs-table");
 }
 
 function closeAll(){
@@ -117,7 +117,7 @@ function startButtonListeners() {
     
     var new_amnt_field = document.createElement('div');
     new_amnt_field.className = 'send-amount-field';
-    new_amnt_field.innerHTML = '<input type="text" class="send-input-amount" id="send-amount-'+i+'" placeholder="Enter amount (XMR)">';
+    new_amnt_field.innerHTML = '<input type="text" class="send-input-amount" id="send-amount-'+i+'" placeholder="Enter amount (BFR)">';
     new_amnt_field.setAttribute("data-id", 'amnt-field-'+i);
     
     destinations.appendChild(new_dest_field);
@@ -165,7 +165,7 @@ function startButtonListeners() {
     document.getElementById('in-txs-table').style.display = 'inline-block';
     document.getElementById('out-txs-table').style.display = 'none';
     
-    fillIncomingTransactionTable("in-txs-table", "all");
+    fillIncomingTransactionTable("in-txs-table");
   });
   document.getElementById('outgoing-txs').addEventListener('click', function () {
     document.getElementById('incoming-txs').style.background = '#FAFAFA';

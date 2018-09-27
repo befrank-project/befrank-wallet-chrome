@@ -23,13 +23,13 @@ document.addEventListener('DOMContentLoaded', function () {
   newContactButton.onclick = function() {
     // Get the contact.
     var name = newContactName.value;
-    var xmr_addr = newContactAddr.value;
+    var bfr_addr = newContactAddr.value;
     var info = newContactInfo.value;
     
-    // Check to make sure the name and xmr_addr are not blank (or just spaces).
-    if (name.replace(/ /g,'') != '' && xmr_addr.replace(/ /g,'') != '') {
+    // Check to make sure the name and bfr_addr are not blank (or just spaces).
+    if (name.replace(/ /g,'') != '' && bfr_addr.replace(/ /g,'') != '') {
       // Create the contact.
-      contactsDB.createContact(name, xmr_addr, info, function(contact) {
+      contactsDB.createContact(name, bfr_addr, info, function(contact) {
         refreshContacts();
       });
     }
@@ -66,8 +66,8 @@ function refreshContacts() {
       namediv.innerHTML = contact.name;
 
       var addrdiv = document.createElement('div');
-      addrdiv.className = 'contact-xmr-addr';
-      addrdiv.innerHTML = contact.xmr_address;
+      addrdiv.className = 'contact-bfr-addr';
+      addrdiv.innerHTML = contact.bfr_address;
 
       var infodiv = document.createElement('div');
       infodiv.className = 'contact-info';

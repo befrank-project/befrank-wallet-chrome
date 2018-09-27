@@ -1,9 +1,9 @@
 /*
  * (c) Copyright 2016 bigreddmachine.
  *
- * These functions enable interactions with monero-wallet-rpc
+ * These functions enable interactions with befrank-wallet-rpc
  * using javascript in the browser. This requires the json-bigint.js in order to parse
- * monero-wallet-rpc numbers larger than the precision possible by Javascript.
+ * befrank-wallet-rpc numbers larger than the precision possible by Javascript.
  *
  * See LICENSE for terms and use.
  */
@@ -58,7 +58,7 @@ function walletJSONrpc(port, method, params, onSuccess, onFailure) {
   }
 }
 
-// Get the balance of connected monero-wallet-rpc:
+// Get the balance of connected befrank-wallet-rpc:
 function getBalance(port, onSuccess, onFailure) {
   var method = "getbalance";
   walletJSONrpc(port, method, undefined,
@@ -71,9 +71,9 @@ function getBalance(port, onSuccess, onFailure) {
   );
 }
 
-// Get the address of connected monero-wallet-rpc:
+// Get the address of connected befrank-wallet-rpc:
 function getAddress(port, onSuccess, onFailure) {
-  var method = "getaddress";
+  var method = "get_address";
   walletJSONrpc(port, method, undefined,
     function(resp) {
       onSuccess(resp);
@@ -84,9 +84,9 @@ function getAddress(port, onSuccess, onFailure) {
   );
 }
 
-// Get the height of connected monero-wallet-rpc:
+// Get the height of connected befrank-wallet-rpc:
 function getHeight(port, onSuccess, onFailure) {
-  var method = "getheight";
+  var method = "get_height";
   walletJSONrpc(port, method, undefined,
     function(resp) {
       onSuccess(resp);
@@ -97,7 +97,7 @@ function getHeight(port, onSuccess, onFailure) {
   );
 }
 
-// Make a transfer from connected monero-wallet-rpc:
+// Make a transfer from connected befrank-wallet-rpc:
 function transfer(port, destinations, payment_id, fee, mixin, unlock_time, get_tx_key, onSuccess, onFailure) {
   // Set up JSON_RPC call:
   var method = "transfer";
@@ -119,7 +119,7 @@ function transfer(port, destinations, payment_id, fee, mixin, unlock_time, get_t
   );
 }
 
-// Make a transfer from connected monero-wallet-rpc:
+// Make a transfer from connected befrank-wallet-rpc:
 function transferSplit(port, destinations, payment_id, fee, mixin, unlock_time, get_tx_key, new_algorithm, onSuccess, onFailure) {
   // Set up JSON_RPC call:
   var method = "transfer_split";
@@ -146,7 +146,7 @@ function transferSplit(port, destinations, payment_id, fee, mixin, unlock_time, 
   );
 }
 
-// Sweep dust of connected monero-wallet-rpc:
+// Sweep dust of connected befrank-wallet-rpc:
 function sweepDust(port, onSuccess, onFailure) {
   var method = "sweep_dust";
   walletJSONrpc(port, method, undefined, function(resp){
@@ -154,7 +154,7 @@ function sweepDust(port, onSuccess, onFailure) {
   });
 }
 
-// Store monero-wallet-rpc:
+// Store befrank-wallet-rpc:
 function store(port, onSuccess, onFailure) {
   var method = "store";
   walletJSONrpc(port, method, undefined,
@@ -203,14 +203,13 @@ function getBulkPayments(port, payment_ids, min_block_height, onSuccess, onFailu
   );
 }
 
-// Get list of incoming transfers (types: 'all', 'available', 'unavailable'):
-function incomingTransfers(port, transfer_type, onSuccess, onFailure) {
+// Get list of transfers
+function incomingTransfers(port, onSuccess, onFailure) {
   // Set up JSON_RPC call:
-  var method = "incoming_transfers";
-  var params = { transfer_type: transfer_type }
+  var method = "get_transfers";
 
   // Do JSON_RPC call:
-  walletJSONrpc(port, method, params,
+  walletJSONrpc(port, method, undefined,
     function(resp) {
       onSuccess(resp);
     },
@@ -292,7 +291,7 @@ function splitIntegratedAddress(port, integrated_address, onSuccess, onFailure) 
 }
 
 
-// Disconnect monero-wallet-rpc:
+// Disconnect befrank-wallet-rpc:
 function stopWallet(port, onSuccess, onFailure) {
   var method = 'stop_wallet';
   walletJSONrpc(port, method, undefined,
