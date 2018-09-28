@@ -280,8 +280,8 @@ function getAllIndices(transfers, tx_hash) {
   return indices;
 }
 
-function fillIncomingTransactionTable(tx_table_id) {
-  incomingTransfers(wallet_info.port,
+function fillTransactionTable(tx_table_id) {
+  getTransfers(wallet_info.port,
     function (resp) { // Successfully get transfers
 
       var transfers = resp.result.transfers;
@@ -297,17 +297,18 @@ function fillIncomingTransactionTable(tx_table_id) {
       for (var i = 0; i < l_tr; i++) {
         var transfer_i = transfers[i];
         var transfer_hash = transfer_i.transactionHash;
+        var transfer_amount = transfer_i.amount;
 
         // If this is the first time seeing a tx hash, get all instances and process them
         if (unique_transfers.indexOf(transfer_hash) == -1) {
           unique_transfers.push(transfer_hash);
 
           // Many txs have multiple outputs. Sum output amounts for the given tx hash
-          var transfer_indices = getAllIndices(transfers, transfer_hash);
-          var transfer_amount = 0;
-          for (var j = 0; j < transfer_indices.length; j++) {
-            transfer_amount += Number(transfers[transfer_indices[j]].amount);
-          }
+          // var transfer_indices = getAllIndices(transfers, transfer_hash);
+          // var transfer_amount = 0;
+          // for (var j = 0; j < transfer_indices.length; j++) {
+          //   transfer_amount += Number(transfers[transfer_indices[j]].amount);
+          // }
 
           // Insert a new row into the table and add tx information
           var row = table.insertRow(1);
@@ -330,7 +331,7 @@ function fillIncomingTransactionTable(tx_table_id) {
           var hash   = row.insertCell(2);
           hash.className = 'tx-hash';
           hash.id = 'tx-hash-' + k;
-          hash.innerHTML = '<div class="in-tx-hash"><a target="_blank" href="http://blocks.befrank.site/?hash=' + transfer_hash + '">' + transfer_hash + '</a></div><div class="in-tx-hash-ell">...</div>';
+          hash.innerHTML = '<div class="tx-hash"><a target="_blank" href="http://blocks.befrank.site/index.php?hash=' + transfer_hash + '">' + transfer_hash + '</a></div><div class="tx-hash">...</div>';
 
           k += 1;
         }
@@ -341,112 +342,6 @@ function fillIncomingTransactionTable(tx_table_id) {
       document.getElementById('txs-error').style.display = 'inline-block';
     }
   );
-}
-
-function fillOutgoingTransactionTable(tx_table_id, transfer_type) {
-  outgoingTxsDB.fetchOutgoingTxs( function (outgoingTxs) { // Successfully get transfers
-
-    // Clear table and re-insert header:
-    var table = document.getElementById(tx_table_id);
-    table.innerHTML = '<tr id="tx-line-top"><th class="tx-number">#</th><th class="tx-amount">Amount</th><th class="tx-hash">Info</th></tr>';
-
-    // Loop through all incoming transfers, and group by tx hash
-    var l_tr = outgoingTxs.length;
-    for (var i = 0; i < l_tr; i++) {
-
-      // Get info for this transaction
-      var pay_id = outgoingTxs[i].payment_id
-      var hashes = outgoingTxs[i].tx_hash_list;
-      var dests  = outgoingTxs[i].destinations;
-      var Ndests = dests.length;
-
-      // Some txs have multiple destinations - sum to get total
-      var total_amount = 0;
-      for (var j = 0; j < Ndests; j++) {
-        total_amount += Number(dests[j].amount);
-      }
-
-      // Insert a new row into the table and add tx information
-      var row = table.insertRow(1);
-      row.id = 'tx-row-' + i;
-      row.className = 'tx-row';
-      if (i%2 == 0) {
-        row.style.background = '#F0F0F0';
-      }
-
-      var number = row.insertCell(0);
-      number.className = 'tx-number';
-      number.id = 'tx-number-' + i;
-      number.innerHTML = String(i+1);
-
-      var amount = row.insertCell(1);
-      amount.className = 'tx-amount';
-      amount.id = 'tx-amount-' + i;
-      amount.innerHTML = coinsFromAtomic(total_amount.toString()) + " &nbsp;";
-
-      var info   = row.insertCell(2);
-      info.className = 'tx-hash';
-      info.id = 'tx-hash-' + i;
-
-      var show_info = document.createElement('div');
-      show_info.className = 'outgoing-tx-toggle-show';
-      show_info.id = 'out-tx-show-' + i;
-      show_info.innerHTML = 'Show Details';
-      info.appendChild(show_info);
-
-      var hide_info = document.createElement('div');
-      hide_info.className = 'outgoing-tx-toggle-hide';
-      hide_info.id = 'out-tx-hide-' + i;
-      hide_info.innerHTML = 'Hide Details';
-      info.appendChild(hide_info);
-
-      var info_details = document.createElement('div');
-      info_details.className = 'outgoing-tx-details';
-      info_details.id = 'out-tx-details-' + i;
-
-      var pay_div = document.createElement('div');
-      pay_div.className = 'outgoing-pay-id';
-      pay_div.innerHTML = '<div class="out-pay-id-link"><span class="bold">Payment ID:</span> <a target="_blank" href="http://befrankblocks.info/search/' + pay_id + '">' + pay_id + '</a></div><div class="in-tx-hash-ell">...</div>';
-      info_details.appendChild(pay_div);
-
-      var dest_title = document.createElement('div');
-      dest_title.className = 'out-title';
-      dest_title.innerHTML = '<span class="bold">Destinations:</span>';
-      info_details.appendChild(dest_title);
-
-      for (var j = 0; j < Ndests; j++) {
-        var dest_j = document.createElement('div');
-        dest_j.className = 'outgoing-dest';
-        dest_j.innerHTML = '<div class="out-dest-type">Address:</div><div class="out-dest-field">' + dests[j].address + '</div><div class="in-tx-hash-ell">...</div><br>';
-        dest_j.innerHTML += '<div class="out-dest-type">Amount:</div><div class="out-dest-field">' + coinsFromAtomic(dests[j].amount.toString()) + '</div>';
-        info_details.appendChild(dest_j);
-      }
-
-      var hash_list = document.createElement('div');
-      hash_list.className = 'outgoing-hashes';
-      hash_list.innerHTML = '<span class="bold">Tx Hashes:</span><br>';
-      for (var j = 0; j < hashes.length; j++) {
-        hash_list.innerHTML += '<div class="outgoing-hash-link"><a target="_blank" href="http://befrankblocks.info/search/' + hashes[i] + '">' + hashes[i] + '</a></div><div class="in-tx-hash-ell">...</div><br>';
-      }
-      info_details.appendChild(hash_list);
-
-
-      info.appendChild(info_details);
-
-      document.getElementById(show_info.id).addEventListener('click', function () {
-        document.getElementById(info_details.id).style.display = 'inline-block';
-        document.getElementById(show_info.id).style.display = 'none';
-        document.getElementById(hide_info.id).style.display = 'inline-block';
-      });
-
-      document.getElementById(hide_info.id).addEventListener('click', function () {
-        document.getElementById(info_details.id).style.display = 'none';
-        document.getElementById(show_info.id).style.display = 'inline-block';
-        document.getElementById(hide_info.id).style.display = 'none';
-      });
-
-    }
-  });
 }
 
 // Update the list of contacts.
@@ -625,9 +520,9 @@ function sendBeFrank () {
   if (pay_id.length == 0) { pay_id = undefined; }
   if (mixin.length == 0 || mixin < 3) { mixin = 3; }
 
-  var fee = undefined, unlock_time = undefined, get_tx_key = true, new_algo = true;
+  var fee = 1, unlock_time = 0;
 
-  transferSplit(wallet_info.port, dests, pay_id, fee, mixin, unlock_time, get_tx_key, new_algo,
+  transfer(wallet_info.port, dests, pay_id, fee, mixin, unlock_time,
     function (resp) {
       console.log(resp);
       if (resp.hasOwnProperty("result")) {

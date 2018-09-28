@@ -98,7 +98,7 @@ function getHeight(port, onSuccess, onFailure) {
 }
 
 // Make a transfer from connected befrank-wallet-rpc:
-function transfer(port, destinations, payment_id, fee, mixin, unlock_time, get_tx_key, onSuccess, onFailure) {
+function transfer(port, destinations, payment_id, fee, mixin, unlock_time, onSuccess, onFailure) {
   // Set up JSON_RPC call:
   var method = "transfer";
   var params = { destinations: destinations }
@@ -106,7 +106,6 @@ function transfer(port, destinations, payment_id, fee, mixin, unlock_time, get_t
   if (fee != undefined) { params.fee = fee; }
   if (mixin != undefined) { params.mixin = mixin; }
   if (unlock_time != undefined) { params.unlock_time = unlock_time; }
-  if (get_tx_key != undefined) { params.get_tx_key = get_tx_key; }
 
   // Do JSON_RPC call:
   walletJSONrpc(port, method, params,
@@ -204,7 +203,7 @@ function getBulkPayments(port, payment_ids, min_block_height, onSuccess, onFailu
 }
 
 // Get list of transfers
-function incomingTransfers(port, onSuccess, onFailure) {
+function getTransfers(port, onSuccess, onFailure) {
   // Set up JSON_RPC call:
   var method = "get_transfers";
 

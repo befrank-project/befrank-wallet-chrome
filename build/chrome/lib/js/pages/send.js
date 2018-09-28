@@ -144,48 +144,48 @@ function sendBeFrankNewTab () {
   if (pay_id.length == 0) { pay_id = undefined; }
   if (mixin.length == 0 || mixin < 3) { mixin = 3; }
 
-  var fee = undefined, unlock_time = undefined, get_tx_key = true, new_algo = true;
+  var fee = undefined, unlock_time = undefined;
   var dests = [{amount: JSONbig.parse(coinsToAtomic(amount)), address: destination}];
 
-  transferSplit(wallet_info.port, dests, pay_id, fee, mixin, unlock_time, get_tx_key, new_algo,
+  transfer(wallet_info.port, dests, pay_id, fee, mixin, unlock_time,
     function (resp) {
-      if (resp.hasOwnProperty("result")) {
-        // Send successful:
-        var tx_hash_list = resp.result.tx_hash_list;
-        var status = document.getElementById('send-success-popup');
+        if (resp.hasOwnProperty("result")) {
+            // Send successful:
+            var tx_hash_list = resp.result.tx_hash_list;
+            var status = document.getElementById('send-success-popup');
 
-        var tx_hashes = [];
-        for (var i=0; i < tx_hash_list.length; i++) {
-          var this_hash = tx_hash_list[i];
-          tx_hashes.push(this_hash);
-          document.getElementById('send-txhashlist-popup').innerHTML += '<a target="_blank" href="http://explore.befrankworld.com/search?value=' + this_hash + '">' + this_hash + '</a><br>';
+            var tx_hashes = [];
+            for (var i=0; i < tx_hash_list.length; i++) {
+                var this_hash = tx_hash_list[i];
+                tx_hashes.push(this_hash);
+                document.getElementById('send-txhashlist-popup').innerHTML += '<a target="_blank" href="http://blocks.befranks.site/index.php?hash=' + this_hash + '">' + this_hash + '</a><br>';
+            }
+
+            outgoingTxsDB.createOutgoingTx(pay_id, dests, tx_hashes, function(contact) {
+                console.log('Outgoing tx successfully stored in database.');
+            });
+
+            status.style.display = 'block';
+            setTimeout(function() {
+                status.style.display = 'none';
+            }, 20000);
+        } else if (resp.hasOwnProperty("error")) {
+            // Send unsuccessful:
+            var status = document.getElementById('send-error-popup');
+            status.innerHTML = "Error: " + resp.error.message;
+            status.style.display = 'block';
+            setTimeout(function() {
+                status.style.display = 'none';
+            }, 10000);
+        } else {
+            // Unknown error:
+            var status = document.getElementById('send-error-popup');
+            status.innerHTML = 'There was an error sending your transaction.';
+            status.style.display = 'block';
+            setTimeout(function() {
+                status.style.display = 'none';
+            }, 10000);
         }
-
-        outgoingTxsDB.createOutgoingTx(pay_id, dests, tx_hashes, function(contact) {
-          console.log('Outgoing tx successfully stored in database.');
-        });
-
-        status.style.display = 'block';
-        setTimeout(function() {
-          status.style.display = 'none';
-        }, 20000);
-      } else if (resp.hasOwnProperty("error")) {
-        // Send unsuccessful:
-        var status = document.getElementById('send-error-popup');
-        status.innerHTML = "Error: " + resp.error.message;
-        status.style.display = 'block';
-        setTimeout(function() {
-          status.style.display = 'none';
-        }, 10000);
-      } else {
-        // Unknown error:
-        var status = document.getElementById('send-error-popup');
-        status.innerHTML = 'There was an error sending your transaction.';
-        status.style.display = 'block';
-        setTimeout(function() {
-          status.style.display = 'none';
-        }, 10000);
-      }
     },
     function (err) {
       var status = document.getElementById('send-error-popup');
